@@ -9,7 +9,7 @@ globals = { 'SCREEN_WIDTH': 600,
             'BG_COLOR': (255, 255, 0) }
 
 def run_game():
- #dicks 
+  
   pygame.init()
   clock = pygame.time.Clock()
   screen = pygame.display.set_mode((globals['SCREEN_WIDTH'], globals['SCREEN_HEIGHT']), 0, 32)
