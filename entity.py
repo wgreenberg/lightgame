@@ -62,10 +62,10 @@ class Player(Entity):
     self.speed = 5
     self.base_image = pygame.transform.rotate(self.image, 180)
     self.flashlight = Light((0,0,0), self.rpos, self.rpos, 0.0, 30.0)
-    self.headlight = Light((255,0,0), self.rpos, self.rpos, 0.0, 70.0)
+    self.headlight = Light((255,0,0), self.rpos, self.rpos, 0.0, 50.0)
     
-    self.lights.append(self.flashlight)
     self.lights.append(self.headlight)
+    self.lights.append(self.flashlight)
     
   def update(self, time_passed, level, currentCam):
     super(Player, self).update(time_passed, level, currentCam)

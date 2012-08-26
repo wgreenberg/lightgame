@@ -3,10 +3,11 @@ from pygame.sprite import Sprite
 from pymunk.vec2d import Vec2d
 
 class Light():
-  HEIGHT = 100.5 # height lights are held from the ground
-  PRESET_SURFACE_WIDTH = 200
-  PRESET_SURFACE_LENGTH = 200
-  MIN_DEFLECTION_ANGLE = 20.0
+  HEIGHT = 100.5                # the height lights are held from the ground
+  PRESET_SURFACE_WIDTH = 200    # size of the original alpha/color surfaces
+  PRESET_SURFACE_LENGTH = 200   #   where largeness = fine grainedness
+  MIN_DEFLECTION_ANGLE = 20.0   # the minimum deflection of the light from the horizontal.
+                                #   i.e., don't let the flashlight be parallel to the ground
   MIN_WIDTH = 60.0
   MIN_LENGTH = 60.0
   MAX_LENGTH = 600.0
@@ -14,11 +15,11 @@ class Light():
   def __init__(self, color, emitter_pos, projection_pos, direction, aperture_angle):
     self.emitter_pos = Vec2d(emitter_pos) # position of the emitter (flashlight)
     self.proj_pos = Vec2d(projection_pos) # center of the light ellipse
-    self.direction = direction
-    self.aperture_angle = aperture_angle
+    self.direction = direction            # init direction of light
+    self.aperture_angle = aperture_angle  # angle of light cone
     self.deflection_angle = self.get_deflection_angle()
     
-    # for the light surface, begin with a preset size, create the mask,
+    # for the light surfaces, begin with a preset size, create the mask,
     # and then scale from there
     self.base_alpha_surface = pygame.Surface((self.PRESET_SURFACE_WIDTH, self.PRESET_SURFACE_LENGTH), pygame.SRCALPHA)
     self.alpha_surface = pygame.Surface((self.PRESET_SURFACE_WIDTH, self.PRESET_SURFACE_LENGTH), pygame.SRCALPHA)
@@ -29,12 +30,16 @@ class Light():
     self.set_color_surface_mask(color)
     
     self.l_width, self.l_length = 100,100
+    
+    #initialize the list of shadow polygons
     self.polylist = []
     
     
     
   # get_projection_dimensions: calculate and return the dimensions of the
-  # light "image" (the ellipse which represents the unhindered projection)
+  # light "image" (the ellipse which represents the unhindered projection).
+  # This is all modeled off the conic section a flashlight makes with the ground,
+  # limited to an ellipse
   def get_projection_dimensions(self):
     # get the length
     d1 = self.HEIGHT * math.tan(math.radians(90.0 - (self.deflection_angle + self.aperture_angle/2.0)))
@@ -73,8 +78,8 @@ class Light():
     
     return deflection
   
-  # given a list of opaque shadows, paint the appropriate shadows
-  # on the surfaces
+  # get_polygon_list: given a list of opaque shadows, paint the appropriate 
+  # shadows on the surfaces
   def get_polygon_list(self, level):
     tiles = self.get_opaque_tiles(level)
 
@@ -84,8 +89,8 @@ class Light():
       
     return pointlist 
   
-  # return a list of Tiles which are in the projection area, and
-  # which light does not go through
+  # get_opaque_tiles: return a list of Tiles which are in the 
+  # projection area, and which light does not go through
   def get_opaque_tiles(self, level):
     realwidth = self.alpha_surface.get_rect().width
     realheight = self.alpha_surface.get_rect().height
@@ -102,9 +107,9 @@ class Light():
     
     return opaque_tiles
   
-  # given the location of the emitter, as well as another point and 
-  # a distance, return the point on the line formed by the emitter
-  # position and p2, which is dist away from the emitter
+  # trace_point: given the location of the emitter, as well as 
+  # another point and a distance, return the point on the line 
+  # formed by the emitter position and p2, which is dist away from the emitter
   def trace_point(self, p2, dist):
     x1, y1 = self.emitter_pos.x, self.emitter_pos.y
     x2, y2 = p2.x, p2.y
@@ -118,9 +123,9 @@ class Light():
     
     return (x2 + dx*dist, y2 + dy*dist)
 
-  # given a tile, return a list of points which forms the polygon
-  # that represents the shadow formed by shining the light from
-  # the emitter position onto the tile
+  # get_shadow_points: given a tile, return a list of points which 
+  # forms the polygon that represents the shadow formed by shining 
+  # the light from the emitter position onto the tile
   def get_shadow_points(self, tile):
     # define light->tile directions in terms of coordinates, which 
     # follow this convention:
@@ -179,9 +184,9 @@ class Light():
     
     return pointlist
   
-  # maps (x, y) pairs to values from [0, 1] for use in making
-  # gradient masks. Presently just uses the linear distance
-  # from the center of the surface
+  # channel_scaling_coeff: maps (x, y) pairs to values from [0, 1] 
+  # for use in making  gradient masks. Presently just uses the linear
+  # distance from the center of the surface
   def channel_scaling_coeff(self, x, y):
     center = self.PRESET_SURFACE_WIDTH/2
     coeff = math.sqrt((x-center)**2 + (y-center)**2)/center
@@ -189,6 +194,8 @@ class Light():
       coeff = 1
     return coeff
   
+  # set_alpha_surface_mask: initializes the alpha mask, which will
+  # be subtracted from the alpha values of the top shadow layer
   def set_alpha_surface_mask(self):
     self.base_alpha_surface.fill((0,0,0))
     mask = pygame.surfarray.pixels_alpha(self.base_alpha_surface)
@@ -198,6 +205,8 @@ class Light():
       for y in range(size):
         mask[x][y] = 255 * (1 - self.channel_scaling_coeff(x, y))
         
+  # set_color_surface_mask: initializes the color mask, which will be
+  # added to the top shadow layer after alpha has been subtracted
   def set_color_surface_mask(self, color):
     self.base_color_surface.fill(color)
     mask = pygame.surfarray.pixels3d(self.base_color_surface)

@@ -23,6 +23,8 @@ class Camera():
     
     return (topleft, botright)
   
+  # real_to_screen: given a pair of real world coordinates, return
+  # their position in this camera's vision grid
   def real_to_screen(self, rx, ry):
     top_left_corner = self.get_corners()[0]
     sx = rx - top_left_corner[0]
@@ -30,6 +32,8 @@ class Camera():
     
     return (sx, sy)
     
+  # screen_to_real: given a pair of coordinates referring to this
+  # camera's vision grid, return their real world analogue
   def screen_to_real(self, sx, sy):
     top_left_corner = self.get_corners()[0]
     rx = sx + top_left_corner[0]
@@ -56,9 +60,9 @@ class Camera():
       # get the screen position of the surface
       light_spos = self.real_to_screen(xoffset_pos, yoffset_pos)
       
-      self.shadow_mask.blit(light.alpha_surface, (light_spos[0], light_spos[1]), None, pygame.BLEND_RGBA_SUB)
+      self.shadow_mask.blit(light.alpha_surface, light_spos, None, pygame.BLEND_RGBA_SUB)
           
-      self.shadow_mask.blit(light.color_surface, (light_spos[0], light_spos[1]), None, pygame.BLEND_RGB_ADD)
+      self.shadow_mask.blit(light.color_surface, light_spos, None, pygame.BLEND_RGB_ADD)
       
     # given the camera's visibility, remove unseeable light by adding full
     # alpha to non-visible areas
