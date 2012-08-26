@@ -39,6 +39,7 @@ def run_game():
         currently_held_keys.remove(event.key)
     
     currentCam = player.camera
+    do_render_light = True
 
     for keydown in currently_held_keys:
       if keydown in globals['WASD_KEYS']:
@@ -46,6 +47,8 @@ def run_game():
       #debug stuff
       if keydown == pygame.K_1:
         currentCam = originCam
+      if keydown == pygame.K_2:
+        do_render_light = False
     
     time_passed = clock.tick(50)
     screen.fill(globals['BG_COLOR'])
@@ -59,7 +62,8 @@ def run_game():
     
     lights_per_entity = [entity.lights for entity in entities]
     all_lights = [light for lights in lights_per_entity for light in lights]
-    currentCam.render_light(screen, all_lights)
+    if do_render_light:
+      currentCam.render_light(screen, all_lights)
 
     pygame.display.flip()
 

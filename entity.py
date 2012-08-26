@@ -61,7 +61,7 @@ class Player(Entity):
     super(Player, self).__init__(image_path, screen, initpos, camera)
     self.speed = 5
     self.base_image = pygame.transform.rotate(self.image, 180)
-    self.flashlight = Light((0,0,0), self.rpos, self.rpos, 0.0, 15.0)
+    self.flashlight = Light((0,0,0), self.rpos, self.rpos, 0.0, 30.0)
     self.headlight = Light((255,0,0), self.rpos, self.rpos, 0.0, 70.0)
     
     self.lights.append(self.flashlight)
