@@ -11,7 +11,7 @@ lightgame is a 2D sidescrolling game engine featuring a basic implementation of 
 
 To run the game
 ---------------
-run <code>python lightgame.py</code>
+<code>python lightgame.py</code>
 
 To play the game
 ----------------
